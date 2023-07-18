@@ -5,9 +5,45 @@
   margin: 0;
   padding: 0;
 }
+
 body {
   min-height: 100vh;
   background: #f1f1f1;
   font-family: Arial, Helvetica, sans-serif;
   padding: clamp(20px, 5vw, 50px) 20px 20px;
+}
+
+img {
+  height: 200px;
+  width: 200px;
+}
+
+.container {
+  width: 60%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+h1 {
+  font-size: 35px;
+}
+
+h1 span {
+  font-weight: 900;
+}
+
+input[type=text] {
+  width: 100%;
+  margin: 25px 0 30px;
+  height: 35px;
+  font-size: 25px;
+}
+
+input[type=text]:focus {
+  border: none;
+  outline: none;
+}
+
+input[type=submit] {
+  visibility: hidden;
 }
