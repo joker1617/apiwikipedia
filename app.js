@@ -8,6 +8,7 @@ form.addEventListener("submit", (e) => {
   performSearch();
 });
 
+// On exécute le fetch dans une fonction où on récupère la valeur rempli par l'utilisateur de l'input
 async function performSearch() {
   const searchInput = document.getElementById("searchInput").value;
   await fetch(
@@ -17,12 +18,13 @@ async function performSearch() {
     .then((data) => {
       console.log(data);
 
+      /*On affiche les résultats que l'on souhaite utiliser de l'api*/
+
       let output = "<ul>";
       data.query.search.forEach((result) => {
-        const articleURL = `https://en.wikipedia.org/wiki/${encodeURIComponent(
-          result.title
-        )}`;
+        const articleURL = `https://en.wikipedia.org/wiki/${result.title}`;
         output += `<li><a href="${articleURL}" target="_blank">${result.title}</a></li>`;
+        output += `<h3>${articleURL}</h3>`;
         output += `<p>${result.snippet}</p></li>`;
       });
       output += "</ul>";
