@@ -1,40 +1,76 @@
 // API ENDPOINT : `https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&origin=*&srlimit=20&srsearch=${searchInput}`
 const form = document.querySelector("form");
 const input = document.querySelector("input");
+const errorMsg = document.querySelector(".error-msg");
 const resultContainer = document.querySelector(".resultContainer");
+const loader = document.querySelector(".loader");
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", handleSubmit);
+
+function handleSubmit(e) {
   e.preventDefault();
-  performSearch();
-});
+
+  // Affichage du message d'erreur si pas de texte écrit dans l'input
+
+  if (input.value === "") {
+    errorMsg.textContent = "Wops, veuillez remplir l'input";
+    return;
+  } else {
+    // Sinon remise à 0 du message d'erreur
+    errorMsg.textContent = "";
+    // Affichage du loader
+    loader.computedStyleMap.display = "flex";
+    // Remise à 0 des réponses
+    resultContainer.textContent = "";
+    // Appel de la fonction avec en paramètre la valeur de l'input
+    performSearch(input.value);
+  }
+}
 
 // On exécute le fetch dans une fonction où on récupère la valeur rempli par l'utilisateur de l'input
-async function performSearch() {
-  const searchInput = document.getElementById("searchInput").value;
-  await fetch(
-    `https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&origin=*&srlimit=20&srsearch=${searchInput}`
-  )
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
+async function performSearch(searchInput) {
+  try {
+    const response = await fetch(
+      `https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&origin=*&srlimit=20&srsearch=${searchInput}`
+    );
+    console.log(response);
+    // Si le statue de la réponse n'est pas ok, affiche l'erreur
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
 
-      /*On affiche les résultats que l'on souhaite utiliser de l'api*/
+    const data = await response.json();
 
-      let output = "<ul>";
-      data.query.search.forEach((result) => {
-        const articleURL = `https://en.wikipedia.org/wiki/${result.title}`;
-        output += `<li><a href="${articleURL}" target="_blank">${result.title}</a></li>`;
-        output += `<h3>${articleURL}</h3>`;
-        output += `<p>${result.snippet}</p></li>`;
-      });
-      output += "</ul>";
+    createCards(data.query.search);
+  } catch (error) {
+    // Si il y a une erreur, affiche le message de l'erreur + cache le loader
+    errorMsg.textContent = `${error}`;
+    loader.style.display = "none";
+  }
+}
 
-      resultContainer.innerHTML = output;
-    })
-    .catch((error) => {
-      console.error(
-        "Une erreur s'est produite lors de la récupération des données:",
-        error
-      );
-    });
+function createCards(data) {
+  if (!data.length) {
+    // Si pas de data, envoi un message d'erreur + cache le loader
+    errorMsg.textContent = "Wopsy, aucun résultat";
+    loader.style.display = "none";
+    return;
+  }
+  data.forEach((el) => {
+    // Crée une card pour chaque élément de réponse
+    const url = `https://en.wikipedia.org/?curid=${el.pageid}`;
+    const card = document.createElement("div");
+    card.className = "result-item";
+    card.innerHTML = `
+    <h3 class="result-item";
+      <a href=${url} target="_blank">${el.title}</a>
+      </h3>
+      <a href=${url} class="result-link" target="_blank">${url}</a>
+      <span class="result-snippet">${el.snippet}</span>
+      <br>
+    `;
+    resultContainer.appendChild(card);
+  });
+  // Cache le loader
+  loader.style.display = "none";
 }
